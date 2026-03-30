@@ -23,10 +23,13 @@ export default function Lobby() {
     if (!user || creating) return;
     setCreating(true);
     try {
+      console.log('Oyun olusturuluyor... user:', user.uid);
       const gameId = await createGame(user);
+      console.log('Oyun olusturuldu:', gameId);
       router.push(`/game/${gameId}`);
     } catch (error) {
       console.error('Oyun olusturma hatasi:', error);
+      alert('Oyun olusturulamadi. Lutfen tekrar deneyin.');
       setCreating(false);
     }
   };

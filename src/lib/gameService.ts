@@ -7,49 +7,49 @@ import {
   onSnapshot,
   query,
   where,
-  orderBy,
   deleteDoc,
-  serverTimestamp,
-  Timestamp,
 } from 'firebase/firestore';
 import type { GameState, LobbyRoom, User } from '@/types';
-import { v4 as uuidv4 } from 'uuid';
 
 const GAMES_COLLECTION = 'games';
 const LOBBY_COLLECTION = 'lobby';
 
+function generateId(): string {
+  return crypto.randomUUID?.() ?? Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
 export async function createGame(user: User): Promise<string> {
-  const gameId = uuidv4();
+  const gameId = generateId();
   const now = Date.now();
 
-  const gameState: GameState = {
+  const gameData = {
     id: gameId,
     white: user.uid,
-    black: null,
-    whiteName: user.displayName || 'Anonim',
-    blackName: null,
-    whitePhoto: user.photoURL,
-    blackPhoto: null,
+    black: '',
+    whiteName: user.displayName || 'Misafir',
+    blackName: '',
+    whitePhoto: user.photoURL || '',
+    blackPhoto: '',
     fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    moves: [],
+    moves: [] as string[],
     status: 'waiting',
     turn: 'w',
-    winner: null,
+    winner: '',
     createdAt: now,
     updatedAt: now,
   };
 
-  const lobbyRoom: LobbyRoom = {
+  const lobbyData = {
     id: gameId,
     hostUid: user.uid,
-    hostName: user.displayName || 'Anonim',
-    hostPhoto: user.photoURL,
+    hostName: user.displayName || 'Misafir',
+    hostPhoto: user.photoURL || '',
     createdAt: now,
     status: 'waiting',
   };
 
-  await setDoc(doc(db, GAMES_COLLECTION, gameId), gameState);
-  await setDoc(doc(db, LOBBY_COLLECTION, gameId), lobbyRoom);
+  await setDoc(doc(db, GAMES_COLLECTION, gameId), gameData);
+  await setDoc(doc(db, LOBBY_COLLECTION, gameId), lobbyData);
 
   return gameId;
 }
@@ -57,15 +57,17 @@ export async function createGame(user: User): Promise<string> {
 export async function joinGame(gameId: string, user: User): Promise<void> {
   await updateDoc(doc(db, GAMES_COLLECTION, gameId), {
     black: user.uid,
-    blackName: user.displayName || 'Anonim',
-    blackPhoto: user.photoURL,
+    blackName: user.displayName || 'Misafir',
+    blackPhoto: user.photoURL || '',
     status: 'playing',
     updatedAt: Date.now(),
   });
 
-  await updateDoc(doc(db, LOBBY_COLLECTION, gameId), {
-    status: 'playing',
-  });
+  try {
+    await deleteDoc(doc(db, LOBBY_COLLECTION, gameId));
+  } catch {
+    // lobby entry may not exist
+  }
 }
 
 export async function makeMove(
