@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { signInWithGoogle, signOut, onAuthChange } from '@/lib/auth';
+import { signInWithGoogle, signInAsGuest, signOut, onAuthChange } from '@/lib/auth';
 import type { User } from '@/types';
 
 export function useAuth() {
@@ -32,5 +32,13 @@ export function useAuth() {
     }
   };
 
-  return { user, loading, signIn, signOut: handleSignOut };
+  const guestSignIn = async () => {
+    try {
+      await signInAsGuest();
+    } catch (error) {
+      console.error('Misafir giris hatasi:', error);
+    }
+  };
+
+  return { user, loading, signIn, guestSignIn, signOut: handleSignOut };
 }

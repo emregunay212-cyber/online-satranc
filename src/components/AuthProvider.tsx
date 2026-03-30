@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: () => Promise<void>;
+  guestSignIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -15,6 +16,7 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   signIn: async () => {},
+  guestSignIn: async () => {},
   signOut: async () => {},
 });
 

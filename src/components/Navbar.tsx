@@ -58,6 +58,9 @@ export default function Navbar() {
                 )}
                 <span className="hidden sm:inline text-sm text-gray-300 font-medium">
                   {user.displayName}
+                  {user.isGuest && (
+                    <span className="ml-1 text-xs text-amber-400">(Misafir)</span>
+                  )}
                 </span>
               </div>
               <button
