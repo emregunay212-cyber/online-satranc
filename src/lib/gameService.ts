@@ -120,8 +120,7 @@ export function subscribeToLobby(
 ): () => void {
   const q = query(
     collection(db, LOBBY_COLLECTION),
-    where('status', '==', 'waiting'),
-    orderBy('createdAt', 'desc')
+    where('status', '==', 'waiting')
   );
 
   return onSnapshot(q, (snapshot) => {
@@ -129,6 +128,10 @@ export function subscribeToLobby(
     snapshot.forEach((doc) => {
       rooms.push(doc.data() as LobbyRoom);
     });
+    rooms.sort((a, b) => b.createdAt - a.createdAt);
     callback(rooms);
+  }, (error) => {
+    console.error('Lobi dinleme hatasi:', error);
+    callback([]);
   });
 }
